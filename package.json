@@ -15,6 +15,11 @@
   },
   "license": "MIT",
   "main": "./lib/autosave",
+  "files": [
+    "docs",
+    "lib",
+    "spec"
+  ],
   "engines": {
     "lumine": "^1.0.0"
   },
