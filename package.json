@@ -1,0 +1,54 @@
+{
+  "name": "autosave",
+  "author": "lumine-code",
+  "version": "1.0.0",
+  "description": "Save editors when they lose focus or are closed.",
+  "keywords": [
+    "persist",
+    "focus",
+    "backup",
+    "save-on-blur"
+  ],
+  "repository": "https://github.com/lumine-code/autosave",
+  "bugs": {
+    "url": "https://github.com/lumine-code/autosave/issues"
+  },
+  "license": "MIT",
+  "main": "./lib/autosave",
+  "engines": {
+    "lumine": "^1.0.0"
+  },
+  "backgroundTips": [
+    "Lumine can save an editor the moment it loses focus. Turn on autosave in the Settings view."
+  ],
+  "scripts": {
+    "test": "lumine --test spec",
+    "lint": "eslint . --max-warnings 0",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "configSchema": {
+    "enabled": {
+      "title": "Enabled",
+      "description": "Save files automatically when they lose focus or their pane is closed.",
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "providedServices": {
+    "autosave": {
+      "description": "A configuration object to control what is autosaved",
+      "versions": {
+        "1.0.0": "provideAutosave"
+      }
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.8.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-n": "^18.2.2",
+    "globals": "^17.7.0",
+    "prettier": "^3.9.6"
+  }
+}
