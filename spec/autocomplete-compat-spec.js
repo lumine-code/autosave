@@ -32,7 +32,7 @@ describe("autosave compatibility with autocomplete", () => {
     // Anchor the project somewhere small: the harness's default root sits on
     // the OS tmpdir, and repository discovery over it drowns the session in
     // notification noise.
-    atom.workspace.project.setPaths([path.join(__dirname, "fixtures")]);
+    lumine.workspace.project.setPaths([path.join(__dirname, "fixtures")]);
     jasmine.useRealClock();
 
     const directory = fs.mkdtempSync(path.join(os.tmpdir(), "autosave-autocomplete-"));
@@ -53,23 +53,23 @@ return sort(Array.apply(this, arguments));
     const filePath = path.join(directory, "sample.js");
     fs.writeFileSync(filePath, sample);
 
-    atom.config.set("autosave.enabled", true);
-    atom.config.set("autocomplete.enableAutoActivation", true);
+    lumine.config.set("autosave.enabled", true);
+    lumine.config.set("autocomplete.enableAutoActivation", true);
     // The suite types one character at a time, and the default minimum word
     // length would reject those prefixes outright.
-    atom.config.set("autocomplete.minimumWordLength", 1);
-    atom.config.set("editor.fontSize", "16");
+    lumine.config.set("autocomplete.minimumWordLength", 1);
+    lumine.config.set("editor.fontSize", "16");
 
-    jasmine.attachToDOM(atom.views.getView(atom.workspace));
+    jasmine.attachToDOM(lumine.views.getView(lumine.workspace));
 
-    await atom.packages.activatePackage("autosave");
+    await lumine.packages.activatePackage("autosave");
 
-    editor = await atom.workspace.open(filePath);
-    editorView = atom.views.getView(editor);
+    editor = await lumine.workspace.open(filePath);
+    editorView = lumine.views.getView(editor);
 
-    await atom.packages.activatePackage("language-javascript");
+    await lumine.packages.activatePackage("language-javascript");
 
-    const mainModule = (await atom.packages.activatePackage("autocomplete")).mainModule;
+    const mainModule = (await lumine.packages.activatePackage("autocomplete")).mainModule;
     await conditionPromise(
       () => mainModule.autocompleteManager && mainModule.autocompleteManager.ready,
       "the autocomplete manager to be ready",
@@ -123,11 +123,11 @@ return sort(Array.apply(this, arguments));
     editor.save();
     expect(autocompleteManager.suggestionList.isActive()).toBe(true);
 
-    // The command is registered on `atom-text-editor.autocomplete-active`,
+    // The command is registered on `lumine-text-editor.autocomplete-active`,
     // so the editor element is the natural dispatch target — the overlay
     // element only attaches once the component updates, which a hidden
     // window defers indefinitely.
-    atom.commands.dispatch(editorView, "autocomplete:confirm");
+    lumine.commands.dispatch(editorView, "autocomplete:confirm");
     expect(editor.getBuffer().getLastLine()).toEqual("function");
   }, 60000);
 });

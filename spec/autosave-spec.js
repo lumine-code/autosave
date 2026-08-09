@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const { Disposable } = require("atom");
+const { Disposable } = require("lumine");
 const { it, fit, ffit, beforeEach, afterEach } = require("./async-spec-helpers"); // eslint-disable-line
 
 describe("Autosave", () => {
@@ -10,21 +10,21 @@ describe("Autosave", () => {
     // Without this the fixtures resolve against the harness's default project
     // root, so every item opened below is a path that does not exist and
     // autosave declines to save it.
-    atom.project.setPaths([path.join(__dirname, "fixtures")]);
-    atom.config.set("core.promptOnSaveConflictedFile", true);
-    workspaceElement = atom.views.getView(atom.workspace);
+    lumine.project.setPaths([path.join(__dirname, "fixtures")]);
+    lumine.config.set("core.promptOnSaveConflictedFile", true);
+    workspaceElement = lumine.views.getView(lumine.workspace);
     jasmine.attachToDOM(workspaceElement);
 
-    await atom.packages.activatePackage("autosave");
+    await lumine.packages.activatePackage("autosave");
 
-    await atom.workspace.open("sample.js");
+    await lumine.workspace.open("sample.js");
 
-    initialActiveItem = atom.workspace.getActiveTextEditor();
+    initialActiveItem = lumine.workspace.getActiveTextEditor();
 
-    if (atom.workspace.createItemForURI != null) {
-      otherItem1 = await atom.workspace.createItemForURI("sample.coffee");
+    if (lumine.workspace.createItemForURI != null) {
+      otherItem1 = await lumine.workspace.createItemForURI("sample.coffee");
     } else {
-      otherItem1 = await atom.workspace.open("sample.coffee", { activateItem: false });
+      otherItem1 = await lumine.workspace.open("sample.coffee", { activateItem: false });
     }
 
     otherItem2 = otherItem1.copy();
@@ -36,8 +36,8 @@ describe("Autosave", () => {
 
   describe("when the item is not modified", () => {
     it("does not autosave the item", () => {
-      atom.config.set("autosave.enabled", true);
-      atom.workspace.getActivePane().splitRight({ items: [otherItem1] });
+      lumine.config.set("autosave.enabled", true);
+      lumine.workspace.getActivePane().splitRight({ items: [otherItem1] });
       expect(initialActiveItem.save).not.toHaveBeenCalled();
     });
   });
@@ -46,14 +46,14 @@ describe("Autosave", () => {
     beforeEach(() => initialActiveItem.setText("i am modified"));
 
     it("autosaves newly added items", async () => {
-      const newItem = await atom.workspace.createItemForURI("notyet.js");
+      const newItem = await lumine.workspace.createItemForURI("notyet.js");
       spyOn(newItem, "isModified").andReturn(true);
 
-      atom.config.set("autosave.enabled", true);
-      spyOn(atom.workspace.getActivePane(), "saveItem").andCallFake(() => Promise.resolve());
-      atom.workspace.getActivePane().addItem(newItem);
+      lumine.config.set("autosave.enabled", true);
+      spyOn(lumine.workspace.getActivePane(), "saveItem").andCallFake(() => Promise.resolve());
+      lumine.workspace.getActivePane().addItem(newItem);
 
-      expect(atom.workspace.getActivePane().saveItem).toHaveBeenCalledWith(newItem);
+      expect(lumine.workspace.getActivePane().saveItem).toHaveBeenCalledWith(newItem);
     });
 
     describe("when a pane loses focus", () => {
@@ -62,7 +62,7 @@ describe("Autosave", () => {
         expect(initialActiveItem.save).not.toHaveBeenCalled();
 
         workspaceElement.focus();
-        atom.config.set("autosave.enabled", true);
+        lumine.config.set("autosave.enabled", true);
         document.body.focus();
         expect(initialActiveItem.save).toHaveBeenCalled();
       });
@@ -72,9 +72,9 @@ describe("Autosave", () => {
         expect(initialActiveItem.save).not.toHaveBeenCalled();
 
         workspaceElement.focus();
-        atom.config.set("autosave.enabled", true);
+        lumine.config.set("autosave.enabled", true);
 
-        const originalPath = atom.workspace.getActiveTextEditor().getPath();
+        const originalPath = lumine.workspace.getActiveTextEditor().getPath();
         const tmpPath = `${originalPath}~`;
         fs.renameSync(originalPath, tmpPath);
 
@@ -85,11 +85,11 @@ describe("Autosave", () => {
       });
 
       it("suppresses autosave if the focused element is contained by the editor, such as occurs when opening the autocomplete menu", () => {
-        atom.config.set("autosave.enabled", true);
+        lumine.config.set("autosave.enabled", true);
         const focusStealer = document.createElement("div");
         focusStealer.setAttribute("tabindex", -1);
 
-        const textEditorElement = atom.views.getView(atom.workspace.getActiveTextEditor());
+        const textEditorElement = lumine.views.getView(lumine.workspace.getActiveTextEditor());
         textEditorElement.appendChild(focusStealer);
         focusStealer.focus();
         expect(initialActiveItem.save).not.toHaveBeenCalled();
@@ -98,14 +98,14 @@ describe("Autosave", () => {
 
     describe("when a new pane is created", () => {
       it("saves the item if autosave is enabled and the item has a uri", () => {
-        const leftPane = atom.workspace.getActivePane();
+        const leftPane = lumine.workspace.getActivePane();
         const rightPane = leftPane.splitRight();
         expect(initialActiveItem.save).not.toHaveBeenCalled();
 
         rightPane.destroy();
         leftPane.activate();
 
-        atom.config.set("autosave.enabled", true);
+        lumine.config.set("autosave.enabled", true);
         leftPane.splitRight();
         expect(initialActiveItem.save).toHaveBeenCalled();
       });
@@ -119,15 +119,15 @@ describe("Autosave", () => {
 
       it("does not try to save the item", async () => {
         expect(initialActiveItem.isInConflict()).toBe(true);
-        const newItem = await atom.workspace.createItemForURI("notyet.js");
+        const newItem = await lumine.workspace.createItemForURI("notyet.js");
         spyOn(newItem, "isModified").andReturn(true);
         spyOn(newItem, "isInConflict").andReturn(true);
 
-        atom.config.set("autosave.enabled", true);
-        spyOn(atom.workspace.getActivePane(), "saveItem").andCallFake(() => Promise.resolve());
-        atom.workspace.getActivePane().addItem(newItem);
+        lumine.config.set("autosave.enabled", true);
+        spyOn(lumine.workspace.getActivePane(), "saveItem").andCallFake(() => Promise.resolve());
+        lumine.workspace.getActivePane().addItem(newItem);
 
-        expect(atom.workspace.getActivePane().saveItem).not.toHaveBeenCalledWith(newItem);
+        expect(lumine.workspace.getActivePane().saveItem).not.toHaveBeenCalledWith(newItem);
       });
 
       describe("and a pane loses focus", () => {
@@ -136,7 +136,7 @@ describe("Autosave", () => {
           expect(initialActiveItem.save).not.toHaveBeenCalled();
 
           workspaceElement.focus();
-          atom.config.set("autosave.enabled", true);
+          lumine.config.set("autosave.enabled", true);
           document.body.focus();
           expect(initialActiveItem.save).not.toHaveBeenCalled();
         });
@@ -144,20 +144,20 @@ describe("Autosave", () => {
 
       describe("but core.promptOnSaveConflictedFile is false", () => {
         beforeEach(() => {
-          atom.config.set("core.promptOnSaveConflictedFile", false);
+          lumine.config.set("core.promptOnSaveConflictedFile", false);
         });
 
         it("does try to save the item", async () => {
           expect(initialActiveItem.isInConflict()).toBe(true);
-          const newItem = await atom.workspace.createItemForURI("notyet.js");
+          const newItem = await lumine.workspace.createItemForURI("notyet.js");
           spyOn(newItem, "isModified").andReturn(true);
           spyOn(newItem, "isInConflict").andReturn(true);
 
-          atom.config.set("autosave.enabled", true);
-          spyOn(atom.workspace.getActivePane(), "saveItem").andCallFake(() => Promise.resolve());
-          atom.workspace.getActivePane().addItem(newItem);
+          lumine.config.set("autosave.enabled", true);
+          spyOn(lumine.workspace.getActivePane(), "saveItem").andCallFake(() => Promise.resolve());
+          lumine.workspace.getActivePane().addItem(newItem);
 
-          expect(atom.workspace.getActivePane().saveItem).toHaveBeenCalledWith(newItem);
+          expect(lumine.workspace.getActivePane().saveItem).toHaveBeenCalledWith(newItem);
         });
 
         describe("and a pane loses focus", () => {
@@ -166,7 +166,7 @@ describe("Autosave", () => {
             expect(initialActiveItem.save).not.toHaveBeenCalled();
 
             workspaceElement.focus();
-            atom.config.set("autosave.enabled", true);
+            lumine.config.set("autosave.enabled", true);
             document.body.focus();
             expect(initialActiveItem.save).toHaveBeenCalled();
           });
@@ -177,17 +177,17 @@ describe("Autosave", () => {
     describe("when an item is destroyed", () => {
       describe("when the item is the active item", () => {
         it("does not save the item if autosave is enabled and the item has a uri", async () => {
-          let leftPane = atom.workspace.getActivePane();
+          let leftPane = lumine.workspace.getActivePane();
           const rightPane = leftPane.splitRight({ items: [otherItem1] });
           leftPane.activate();
-          expect(initialActiveItem).toBe(atom.workspace.getActivePaneItem());
+          expect(initialActiveItem).toBe(lumine.workspace.getActivePaneItem());
           leftPane.destroyItem(initialActiveItem);
           expect(initialActiveItem.save).not.toHaveBeenCalled();
 
           otherItem2.setText("I am also modified");
-          atom.config.set("autosave.enabled", true);
+          lumine.config.set("autosave.enabled", true);
           leftPane = rightPane.splitLeft({ items: [otherItem2] });
-          expect(otherItem2).toBe(atom.workspace.getActivePaneItem());
+          expect(otherItem2).toBe(lumine.workspace.getActivePaneItem());
           await leftPane.destroyItem(otherItem2);
           expect(otherItem2.save).toHaveBeenCalled();
         });
@@ -195,17 +195,17 @@ describe("Autosave", () => {
 
       describe("when the item is NOT the active item", () => {
         it("does not save the item if autosave is enabled and the item has a uri", () => {
-          let leftPane = atom.workspace.getActivePane();
+          let leftPane = lumine.workspace.getActivePane();
           const rightPane = leftPane.splitRight({ items: [otherItem1] });
-          expect(initialActiveItem).not.toBe(atom.workspace.getActivePaneItem());
+          expect(initialActiveItem).not.toBe(lumine.workspace.getActivePaneItem());
           leftPane.destroyItem(initialActiveItem);
           expect(initialActiveItem.save).not.toHaveBeenCalled();
 
           otherItem2.setText("I am also modified");
-          atom.config.set("autosave.enabled", true);
+          lumine.config.set("autosave.enabled", true);
           leftPane = rightPane.splitLeft({ items: [otherItem2] });
           rightPane.focus();
-          expect(otherItem2).not.toBe(atom.workspace.getActivePaneItem());
+          expect(otherItem2).not.toBe(lumine.workspace.getActivePaneItem());
           leftPane.destroyItem(otherItem2);
           expect(otherItem2.save).toHaveBeenCalled();
         });
@@ -214,15 +214,15 @@ describe("Autosave", () => {
 
     describe("when the item does not have a URI", () => {
       it("does not save the item", async () => {
-        await atom.workspace.open();
+        await lumine.workspace.open();
 
-        const pathLessItem = atom.workspace.getActiveTextEditor();
+        const pathLessItem = lumine.workspace.getActiveTextEditor();
         spyOn(pathLessItem, "save").andCallThrough();
         pathLessItem.setText("text!");
         expect(pathLessItem.getURI()).toBeFalsy();
 
-        atom.config.set("autosave.enabled", true);
-        atom.workspace.getActivePane().destroyItem(pathLessItem);
+        lumine.config.set("autosave.enabled", true);
+        lumine.workspace.getActivePane().destroyItem(pathLessItem);
         expect(pathLessItem.save).not.toHaveBeenCalled();
       });
     });
@@ -230,9 +230,9 @@ describe("Autosave", () => {
 
   describe("when the window is blurred", () => {
     it("saves all items", () => {
-      atom.config.set("autosave.enabled", true);
+      lumine.config.set("autosave.enabled", true);
 
-      const leftPane = atom.workspace.getActivePane();
+      const leftPane = lumine.workspace.getActivePane();
       leftPane.splitRight({ items: [otherItem1] });
 
       initialActiveItem.insertText("a");
@@ -254,19 +254,19 @@ describe("Autosave", () => {
 
     beforeEach(async () => {
       willDestroyCallbacks = [];
-      await atom.packages.deactivatePackage("autosave");
-      spyOn(atom.window, "onWillDestroy").andCallFake((callback) => {
+      await lumine.packages.deactivatePackage("autosave");
+      spyOn(lumine.window, "onWillDestroy").andCallFake((callback) => {
         willDestroyCallbacks.push(callback);
         return new Disposable(() => {});
       });
-      autosave = (await atom.packages.activatePackage("autosave")).mainModule;
+      autosave = (await lumine.packages.activatePackage("autosave")).mainModule;
       spyOn(autosave, "autosaveAllPaneItems");
     });
 
     afterEach(async () => {
       // will-destroy disposed the package's subscriptions, so the next spec's
       // activatePackage would otherwise be a no-op on a torn-down instance.
-      await atom.packages.deactivatePackage("autosave");
+      await lumine.packages.deactivatePackage("autosave");
     });
 
     it("stops autosaving when the window blurs", () => {
@@ -284,9 +284,9 @@ describe("Autosave", () => {
 
   describe("when the package is deactivated", () => {
     it("saves all items and waits for saves to complete", () => {
-      atom.config.set("autosave.enabled", true);
+      lumine.config.set("autosave.enabled", true);
 
-      const leftPane = atom.workspace.getActivePane();
+      const leftPane = lumine.workspace.getActivePane();
       leftPane.splitRight({ items: [otherItem1] });
 
       initialActiveItem.insertText("a");
@@ -307,7 +307,7 @@ describe("Autosave", () => {
         });
       });
 
-      let deactivatePromise = atom.packages.deactivatePackage("autosave");
+      let deactivatePromise = lumine.packages.deactivatePackage("autosave");
       if (
         !deactivatePromise ||
         !deactivatePromise.then ||
@@ -350,22 +350,22 @@ describe("Autosave", () => {
     const errorCallback = jasmine
       .createSpy("errorCallback")
       .andCallFake(({ preventDefault }) => preventDefault());
-    atom.runtime.onWillThrowError(errorCallback);
-    spyOn(atom.notifications, "addWarning");
+    lumine.runtime.onWillThrowError(errorCallback);
+    spyOn(lumine.notifications, "addWarning");
 
     initialActiveItem.insertText("a");
-    atom.config.set("autosave.enabled", true);
+    lumine.config.set("autosave.enabled", true);
 
-    await atom.workspace.destroyActivePaneItem();
+    await lumine.workspace.destroyActivePaneItem();
     expect(initialActiveItem.save).toHaveBeenCalled();
-    expect(atom.notifications.addWarning.callCount > 0 || errorCallback.callCount > 0).toBe(true);
+    expect(lumine.notifications.addWarning.callCount > 0 || errorCallback.callCount > 0).toBe(true);
   });
 
   describe("dontSaveIf service", () => {
     it("doesn't save a paneItem if a predicate function registered via the dontSaveIf service returns true", async () => {
-      atom.workspace.getActivePane().addItem(otherItem1);
-      atom.config.set("autosave.enabled", true);
-      const service = atom.packages.getActivePackage("autosave").mainModule.provideAutosave();
+      lumine.workspace.getActivePane().addItem(otherItem1);
+      lumine.config.set("autosave.enabled", true);
+      const service = lumine.packages.getActivePackage("autosave").mainModule.provideAutosave();
       service.dontSaveIf((paneItem) => paneItem === initialActiveItem);
 
       initialActiveItem.setText("foo");
