@@ -255,7 +255,7 @@ describe("Autosave", () => {
     beforeEach(async () => {
       willDestroyCallbacks = [];
       await atom.packages.deactivatePackage("autosave");
-      spyOn(atom, "onWillDestroy").andCallFake((callback) => {
+      spyOn(atom.window, "onWillDestroy").andCallFake((callback) => {
         willDestroyCallbacks.push(callback);
         return new Disposable(() => {});
       });
@@ -350,7 +350,7 @@ describe("Autosave", () => {
     const errorCallback = jasmine
       .createSpy("errorCallback")
       .andCallFake(({ preventDefault }) => preventDefault());
-    atom.onWillThrowError(errorCallback);
+    atom.runtime.onWillThrowError(errorCallback);
     spyOn(atom.notifications, "addWarning");
 
     initialActiveItem.insertText("a");
