@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const { it, fit, ffit, beforeEach, afterEach } = require("./async-spec-helpers"); // eslint-disable-line
 
 describe("Autosave", () => {
   let workspaceElement, initialActiveItem, otherItem1, otherItem2;
@@ -28,9 +27,9 @@ describe("Autosave", () => {
 
     otherItem2 = otherItem1.copy();
 
-    spyOn(initialActiveItem, "save").andCallFake(() => Promise.resolve());
-    spyOn(otherItem1, "save").andCallFake(() => Promise.resolve());
-    spyOn(otherItem2, "save").andCallFake(() => Promise.resolve());
+    spyOn(initialActiveItem, "save").and.callFake(() => Promise.resolve());
+    spyOn(otherItem1, "save").and.callFake(() => Promise.resolve());
+    spyOn(otherItem2, "save").and.callFake(() => Promise.resolve());
   });
 
   describe("when the item is not modified", () => {
@@ -46,10 +45,10 @@ describe("Autosave", () => {
 
     it("autosaves newly added items", async () => {
       const newItem = await lumine.workspace.createItemForURI("notyet.js");
-      spyOn(newItem, "isModified").andReturn(true);
+      spyOn(newItem, "isModified").and.returnValue(true);
 
       lumine.config.set("autosave.enabled", true);
-      spyOn(lumine.workspace.getActivePane(), "saveItem").andCallFake(() => Promise.resolve());
+      spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
       lumine.workspace.getActivePane().addItem(newItem);
 
       expect(lumine.workspace.getActivePane().saveItem).toHaveBeenCalledWith(newItem);
@@ -113,17 +112,17 @@ describe("Autosave", () => {
     describe("when an item is conflicted", () => {
       beforeEach(() => {
         initialActiveItem.setText("i am modified");
-        spyOn(initialActiveItem, "isInConflict").andReturn(true);
+        spyOn(initialActiveItem, "isInConflict").and.returnValue(true);
       });
 
       it("does not try to save the item", async () => {
         expect(initialActiveItem.isInConflict()).toBe(true);
         const newItem = await lumine.workspace.createItemForURI("notyet.js");
-        spyOn(newItem, "isModified").andReturn(true);
-        spyOn(newItem, "isInConflict").andReturn(true);
+        spyOn(newItem, "isModified").and.returnValue(true);
+        spyOn(newItem, "isInConflict").and.returnValue(true);
 
         lumine.config.set("autosave.enabled", true);
-        spyOn(lumine.workspace.getActivePane(), "saveItem").andCallFake(() => Promise.resolve());
+        spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
         lumine.workspace.getActivePane().addItem(newItem);
 
         expect(lumine.workspace.getActivePane().saveItem).not.toHaveBeenCalledWith(newItem);
@@ -149,11 +148,11 @@ describe("Autosave", () => {
         it("does try to save the item", async () => {
           expect(initialActiveItem.isInConflict()).toBe(true);
           const newItem = await lumine.workspace.createItemForURI("notyet.js");
-          spyOn(newItem, "isModified").andReturn(true);
-          spyOn(newItem, "isInConflict").andReturn(true);
+          spyOn(newItem, "isModified").and.returnValue(true);
+          spyOn(newItem, "isInConflict").and.returnValue(true);
 
           lumine.config.set("autosave.enabled", true);
-          spyOn(lumine.workspace.getActivePane(), "saveItem").andCallFake(() => Promise.resolve());
+          spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
           lumine.workspace.getActivePane().addItem(newItem);
 
           expect(lumine.workspace.getActivePane().saveItem).toHaveBeenCalledWith(newItem);
@@ -216,7 +215,7 @@ describe("Autosave", () => {
         await lumine.workspace.open();
 
         const pathLessItem = lumine.workspace.getActiveTextEditor();
-        spyOn(pathLessItem, "save").andCallThrough();
+        spyOn(pathLessItem, "save").and.callThrough();
         pathLessItem.setText("text!");
         expect(pathLessItem.getURI()).toBeFalsy();
 
@@ -266,7 +265,7 @@ describe("Autosave", () => {
   });
 
   describe("when the package is deactivated", () => {
-    it("saves all items and waits for saves to complete", () => {
+    it("saves all items and waits for saves to complete", async () => {
       lumine.config.set("autosave.enabled", true);
 
       const leftPane = lumine.workspace.getActivePane();
@@ -279,12 +278,12 @@ describe("Autosave", () => {
       let asyncDeactivateSupported = true;
       let resolveInitial = () => {};
       let resolveOther = () => {};
-      initialActiveItem.save.andCallFake(() => {
+      initialActiveItem.save.and.callFake(() => {
         return new Promise((resolve) => {
           resolveInitial = resolve;
         });
       });
-      otherItem1.save.andCallFake(() => {
+      otherItem1.save.and.callFake(() => {
         return new Promise((resolve) => {
           resolveOther = resolve;
         });
@@ -309,18 +308,16 @@ describe("Autosave", () => {
         deactivated = true;
       });
 
-      waitsForPromise(() => Promise.resolve());
+      await Promise.resolve();
 
-      runs(() => {
-        if (asyncDeactivateSupported) {
-          expect(deactivated).toBe(false);
-        }
+      if (asyncDeactivateSupported) {
+        expect(deactivated).toBe(false);
+      }
 
-        resolveInitial();
-        resolveOther();
-      });
+      resolveInitial();
+      resolveOther();
 
-      waitsFor(() => !asyncDeactivateSupported || deactivated);
+      await conditionPromise(() => !asyncDeactivateSupported || deactivated);
     });
   });
 
@@ -328,11 +325,11 @@ describe("Autosave", () => {
     const saveError = new Error("Save failed");
     saveError.code = "EACCES";
     saveError.path = initialActiveItem.getPath();
-    initialActiveItem.save.andThrow(saveError);
+    initialActiveItem.save.and.throwError(saveError);
 
     const errorCallback = jasmine
       .createSpy("errorCallback")
-      .andCallFake(({ preventDefault }) => preventDefault());
+      .and.callFake(({ preventDefault }) => preventDefault());
     lumine.runtime.onWillThrowError(errorCallback);
     spyOn(lumine.notifications, "addWarning");
 
@@ -341,7 +338,9 @@ describe("Autosave", () => {
 
     await lumine.workspace.destroyActivePaneItem();
     expect(initialActiveItem.save).toHaveBeenCalled();
-    expect(lumine.notifications.addWarning.callCount > 0 || errorCallback.callCount > 0).toBe(true);
+    expect(
+      lumine.notifications.addWarning.calls.count() > 0 || errorCallback.calls.count() > 0,
+    ).toBe(true);
   });
 
   describe("dontSaveIf service", () => {
