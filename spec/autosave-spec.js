@@ -1,6 +1,5 @@
 const fs = require("fs");
 const path = require("path");
-const { Disposable } = require("lumine");
 const { it, fit, ffit, beforeEach, afterEach } = require("./async-spec-helpers"); // eslint-disable-line
 
 describe("Autosave", () => {
@@ -245,40 +244,24 @@ describe("Autosave", () => {
     });
   });
 
-  // A reload unloads the window with `deactivatePackages: false`, so
-  // `deactivate` never runs and `will-destroy` is the only signal that can take
-  // the blur listener off. Left on, the blur on the way out reaches for a
-  // workspace the environment has already dropped, and throws.
-  describe("when the environment is destroying", () => {
-    let autosave, willDestroyCallbacks;
-
-    beforeEach(async () => {
-      willDestroyCallbacks = [];
-      await lumine.packages.deactivatePackage("autosave");
-      spyOn(lumine.window, "onWillDestroy").andCallFake((callback) => {
-        willDestroyCallbacks.push(callback);
-        return new Disposable(() => {});
-      });
-      autosave = (await lumine.packages.activatePackage("autosave")).mainModule;
+  // The blur listener has to be off before the environment is taken apart: the
+  // window blurs once more on the way out, and by then the workspace it reaches
+  // for is gone. Every orderly unload deactivates — a reload as much as a close
+  // — so deactivation is what removes it.
+  describe("when the window unloads", () => {
+    it("stops autosaving on blur once it has deactivated", async () => {
+      const autosave = (await lumine.packages.activatePackage("autosave")).mainModule;
       spyOn(autosave, "autosaveAllPaneItems");
-    });
 
-    afterEach(async () => {
-      // will-destroy disposed the package's subscriptions, so the next spec's
-      // activatePackage would otherwise be a no-op on a torn-down instance.
+      window.dispatchEvent(new FocusEvent("blur"));
+      expect(autosave.autosaveAllPaneItems.calls.count()).toBe(1);
+
+      // Deactivation saves everything one last time, which is the second call.
       await lumine.packages.deactivatePackage("autosave");
-    });
-
-    it("stops autosaving when the window blurs", () => {
-      expect(willDestroyCallbacks.length).toBe(1);
+      expect(autosave.autosaveAllPaneItems.calls.count()).toBe(2);
 
       window.dispatchEvent(new FocusEvent("blur"));
-      expect(autosave.autosaveAllPaneItems.calls.count()).toBe(1);
-
-      willDestroyCallbacks[0]();
-      window.dispatchEvent(new FocusEvent("blur"));
-
-      expect(autosave.autosaveAllPaneItems.calls.count()).toBe(1);
+      expect(autosave.autosaveAllPaneItems.calls.count()).toBe(2);
     });
   });
 
