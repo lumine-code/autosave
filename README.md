@@ -12,11 +12,11 @@ Save editors when they lose focus or are closed.
 
 ## Installation
 
-To install `autosave` search for _autosave_ in the Install pane of the Lumine settings or run `lumine --install lumine-code/autosave`.
+To install `autosave` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/autosave`.
 
 ## Services
 
-- **[autosave](docs/autosave.md)** (`1.0.0`): provided to expose a `dontSaveIf` callback so other packages can exclude specific pane items from being autosaved.
+- [`autosave`](docs/autosave.md): provided to expose a `dontSaveIf` callback so other packages can exclude specific pane items from being autosaved.
 
 ## Contributing
 
