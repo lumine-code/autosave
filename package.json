@@ -26,6 +26,9 @@
   "backgroundTips": [
     "Lumine can save an editor the moment it loses focus. Turn on autosave in the Settings view."
   ],
+  "specPackages": [
+    "autocomplete"
+  ],
   "scripts": {
     "test": "lumine --test spec",
     "lint": "eslint . --max-warnings 0",
