@@ -45,7 +45,7 @@ describe("Autosave", () => {
 
     it("autosaves newly added items", async () => {
       const newItem = await lumine.workspace.createItemForURI("notyet.js");
-      spyOn(newItem, "isModified").and.returnValue(true);
+      spyOn(newItem, "getFileState").and.returnValue(lumine.FileState.MODIFIED);
 
       lumine.config.set("autosave.enabled", true);
       spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
@@ -112,14 +112,13 @@ describe("Autosave", () => {
     describe("when an item is conflicted", () => {
       beforeEach(() => {
         initialActiveItem.setText("i am modified");
-        spyOn(initialActiveItem, "isInConflict").and.returnValue(true);
+        spyOn(initialActiveItem, "getFileState").and.returnValue(lumine.FileState.CONFLICTED);
       });
 
       it("does not try to save the item", async () => {
-        expect(initialActiveItem.isInConflict()).toBe(true);
+        expect(initialActiveItem.getFileState()).toBe(lumine.FileState.CONFLICTED);
         const newItem = await lumine.workspace.createItemForURI("notyet.js");
-        spyOn(newItem, "isModified").and.returnValue(true);
-        spyOn(newItem, "isInConflict").and.returnValue(true);
+        spyOn(newItem, "getFileState").and.returnValue(lumine.FileState.CONFLICTED);
 
         lumine.config.set("autosave.enabled", true);
         spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
@@ -146,10 +145,9 @@ describe("Autosave", () => {
         });
 
         it("does not try to save the item", async () => {
-          expect(initialActiveItem.isInConflict()).toBe(true);
+          expect(initialActiveItem.getFileState()).toBe(lumine.FileState.CONFLICTED);
           const newItem = await lumine.workspace.createItemForURI("notyet.js");
-          spyOn(newItem, "isModified").and.returnValue(true);
-          spyOn(newItem, "isInConflict").and.returnValue(true);
+          spyOn(newItem, "getFileState").and.returnValue(lumine.FileState.CONFLICTED);
 
           lumine.config.set("autosave.enabled", true);
           spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
@@ -169,6 +167,19 @@ describe("Autosave", () => {
             expect(initialActiveItem.save).not.toHaveBeenCalled();
           });
         });
+      });
+    });
+
+    describe("when an item is removed", () => {
+      it("does not recreate the file", async () => {
+        const newItem = await lumine.workspace.createItemForURI("notyet.js");
+        spyOn(newItem, "getFileState").and.returnValue(lumine.FileState.REMOVED);
+
+        lumine.config.set("autosave.enabled", true);
+        spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
+        lumine.workspace.getActivePane().addItem(newItem);
+
+        expect(lumine.workspace.getActivePane().saveItem).not.toHaveBeenCalledWith(newItem);
       });
     });
 
