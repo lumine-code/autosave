@@ -145,7 +145,7 @@ describe("Autosave", () => {
           lumine.config.set("core.promptOnSaveConflictedFile", false);
         });
 
-        it("does try to save the item", async () => {
+        it("does not try to save the item", async () => {
           expect(initialActiveItem.isInConflict()).toBe(true);
           const newItem = await lumine.workspace.createItemForURI("notyet.js");
           spyOn(newItem, "isModified").and.returnValue(true);
@@ -155,18 +155,18 @@ describe("Autosave", () => {
           spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
           lumine.workspace.getActivePane().addItem(newItem);
 
-          expect(lumine.workspace.getActivePane().saveItem).toHaveBeenCalledWith(newItem);
+          expect(lumine.workspace.getActivePane().saveItem).not.toHaveBeenCalledWith(newItem);
         });
 
         describe("and a pane loses focus", () => {
-          it("saves the conflicted item if autosave is enabled", () => {
+          it("skips saving the conflicted item, even if autosave is enabled", () => {
             document.body.focus();
             expect(initialActiveItem.save).not.toHaveBeenCalled();
 
             workspaceElement.focus();
             lumine.config.set("autosave.enabled", true);
             document.body.focus();
-            expect(initialActiveItem.save).toHaveBeenCalled();
+            expect(initialActiveItem.save).not.toHaveBeenCalled();
           });
         });
       });
