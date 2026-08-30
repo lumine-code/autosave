@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 describe("Autosave", () => {
-  let workspaceElement, initialActiveItem, otherItem1, otherItem2;
+  let workspaceElement, initialActiveItem, otherItem1, otherItem2, autosave;
 
   beforeEach(async () => {
     // Without this the fixtures resolve against the harness's default project
@@ -13,7 +13,7 @@ describe("Autosave", () => {
     workspaceElement = lumine.views.getView(lumine.workspace);
     jasmine.attachToDOM(workspaceElement);
 
-    await lumine.packages.activatePackage("autosave");
+    autosave = (await lumine.packages.activatePackage("autosave")).mainModule;
 
     await lumine.workspace.open("sample.js");
 
@@ -251,6 +251,28 @@ describe("Autosave", () => {
 
       expect(initialActiveItem.save).toHaveBeenCalled();
       expect(otherItem1.save).toHaveBeenCalled();
+    });
+
+    it("saves once when a detached surface Window is blurred", () => {
+      const frame = document.createElement("iframe");
+      document.body.appendChild(frame);
+      // Two pane items may share a surface. Retaining it twice must still
+      // install only one native blur listener.
+      autosave.retainSurfaceWindow(frame.contentWindow);
+      autosave.retainSurfaceWindow(frame.contentWindow);
+      try {
+        initialActiveItem.insertText("detached change");
+        lumine.config.set("autosave.enabled", true);
+        initialActiveItem.save.calls.reset();
+
+        frame.contentWindow.dispatchEvent(new frame.contentWindow.FocusEvent("blur"));
+
+        expect(initialActiveItem.save.calls.count()).toBe(1);
+      } finally {
+        autosave.releaseSurfaceWindow(frame.contentWindow);
+        autosave.releaseSurfaceWindow(frame.contentWindow);
+        frame.remove();
+      }
     });
   });
 
