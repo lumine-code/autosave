@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 
 describe("Autosave", () => {
-  let workspaceElement, initialActiveItem, otherItem1, otherItem2, autosave;
+  let workspaceElement, initialActiveItem, otherItem1, otherItem2;
 
   beforeEach(async () => {
     // Without this the fixtures resolve against the harness's default project
@@ -13,7 +13,7 @@ describe("Autosave", () => {
     workspaceElement = lumine.views.getView(lumine.workspace);
     jasmine.attachToDOM(workspaceElement);
 
-    autosave = (await lumine.packages.activatePackage("autosave")).mainModule;
+    await lumine.packages.activatePackage("autosave");
 
     await lumine.workspace.open("sample.js");
 
@@ -253,25 +253,22 @@ describe("Autosave", () => {
       expect(otherItem1.save).toHaveBeenCalled();
     });
 
-    it("saves once when a detached surface Window is blurred", () => {
-      const frame = document.createElement("iframe");
-      document.body.appendChild(frame);
-      // Two pane items may share a surface. Retaining it twice must still
-      // install only one native blur listener.
-      autosave.retainSurfaceWindow(frame.contentWindow);
-      autosave.retainSurfaceWindow(frame.contentWindow);
+    it("saves once when a detached surface Window is blurred", async () => {
+      lumine.initializeDetachedPaneSurfaces({ force: true });
+      let detachedPane;
       try {
+        detachedPane = await lumine.workspace.detachPaneItem(initialActiveItem, { show: false });
+        const surface = lumine.workspace.getWindowSurface(initialActiveItem);
         initialActiveItem.insertText("detached change");
         lumine.config.set("autosave.enabled", true);
         initialActiveItem.save.calls.reset();
 
-        frame.contentWindow.dispatchEvent(new frame.contentWindow.FocusEvent("blur"));
+        surface.window.dispatchEvent(new surface.window.FocusEvent("blur"));
 
         expect(initialActiveItem.save.calls.count()).toBe(1);
       } finally {
-        autosave.releaseSurfaceWindow(frame.contentWindow);
-        autosave.releaseSurfaceWindow(frame.contentWindow);
-        frame.remove();
+        if (detachedPane?.isAlive?.()) await lumine.workspace.attachDetachedPane(detachedPane);
+        lumine.initializeDetachedPaneSurfaces();
       }
     });
   });
