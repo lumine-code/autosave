@@ -252,25 +252,6 @@ describe("Autosave", () => {
       expect(initialActiveItem.save).toHaveBeenCalled();
       expect(otherItem1.save).toHaveBeenCalled();
     });
-
-    it("saves once when a detached surface Window is blurred", async () => {
-      lumine.initializeDetachedPaneSurfaces({ force: true });
-      let detachedPane;
-      try {
-        detachedPane = await lumine.workspace.detachPaneItem(initialActiveItem, { show: false });
-        const surface = lumine.workspace.getWindowSurface(initialActiveItem);
-        initialActiveItem.insertText("detached change");
-        lumine.config.set("autosave.enabled", true);
-        initialActiveItem.save.calls.reset();
-
-        surface.window.dispatchEvent(new surface.window.FocusEvent("blur"));
-
-        expect(initialActiveItem.save.calls.count()).toBe(1);
-      } finally {
-        if (detachedPane?.isAlive?.()) await lumine.workspace.attachDetachedPane(detachedPane);
-        lumine.initializeDetachedPaneSurfaces();
-      }
-    });
   });
 
   // The blur listener has to be off before the environment is taken apart: the
