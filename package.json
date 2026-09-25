@@ -23,9 +23,6 @@
   "engines": {
     "lumine": "^1.0.0"
   },
-  "backgroundTips": [
-    "Lumine can save an editor the moment it loses focus. Turn on autosave in the Settings view."
-  ],
   "specPackages": [
     "autocomplete"
   ],
@@ -48,6 +45,11 @@
       "description": "A configuration object to control what is autosaved",
       "versions": {
         "1.0.0": "provideAutosave"
+      }
+    },
+    "background-tips.provider": {
+      "versions": {
+        "1.0.0": "provideBackgroundTips"
       }
     }
   },
