@@ -45,7 +45,7 @@ describe("Autosave", () => {
 
     it("autosaves newly added items", async () => {
       const newItem = await lumine.workspace.createItemForURI("notyet.js");
-      spyOn(newItem, "getFileState").and.returnValue(lumine.FileState.MODIFIED);
+      spyOn(newItem, "getFileState").and.returnValue("modified");
 
       lumine.config.set("autosave.enabled", true);
       spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
@@ -112,13 +112,13 @@ describe("Autosave", () => {
     describe("when an item is conflicted", () => {
       beforeEach(() => {
         initialActiveItem.setText("i am modified");
-        spyOn(initialActiveItem, "getFileState").and.returnValue(lumine.FileState.CONFLICTED);
+        spyOn(initialActiveItem, "getFileState").and.returnValue("conflicted");
       });
 
       it("does not try to save the item", async () => {
-        expect(initialActiveItem.getFileState()).toBe(lumine.FileState.CONFLICTED);
+        expect(initialActiveItem.getFileState()).toBe("conflicted");
         const newItem = await lumine.workspace.createItemForURI("notyet.js");
-        spyOn(newItem, "getFileState").and.returnValue(lumine.FileState.CONFLICTED);
+        spyOn(newItem, "getFileState").and.returnValue("conflicted");
 
         lumine.config.set("autosave.enabled", true);
         spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
@@ -145,9 +145,9 @@ describe("Autosave", () => {
         });
 
         it("does not try to save the item", async () => {
-          expect(initialActiveItem.getFileState()).toBe(lumine.FileState.CONFLICTED);
+          expect(initialActiveItem.getFileState()).toBe("conflicted");
           const newItem = await lumine.workspace.createItemForURI("notyet.js");
-          spyOn(newItem, "getFileState").and.returnValue(lumine.FileState.CONFLICTED);
+          spyOn(newItem, "getFileState").and.returnValue("conflicted");
 
           lumine.config.set("autosave.enabled", true);
           spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
@@ -173,7 +173,7 @@ describe("Autosave", () => {
     describe("when an item is removed", () => {
       it("does not recreate the file", async () => {
         const newItem = await lumine.workspace.createItemForURI("notyet.js");
-        spyOn(newItem, "getFileState").and.returnValue(lumine.FileState.REMOVED);
+        spyOn(newItem, "getFileState").and.returnValue("removed");
 
         lumine.config.set("autosave.enabled", true);
         spyOn(lumine.workspace.getActivePane(), "saveItem").and.callFake(() => Promise.resolve());
