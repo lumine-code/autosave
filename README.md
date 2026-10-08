@@ -2,6 +2,8 @@
 
 Save editors when they lose focus or are closed.
 
+Fork of [pulsar-edit/pulsar](https://github.com/pulsar-edit/pulsar) (`packages/autosave`).
+
 ## Features
 
 - **Save on blur**: saves an editor when it loses focus.
