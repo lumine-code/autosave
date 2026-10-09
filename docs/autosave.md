@@ -7,9 +7,9 @@ Registers a veto: a predicate that stops autosave from writing a particular pane
 | Version     | `1.0.0`                                        |
 | Provided by | `provideAutosave()` returning `{ dontSaveIf }` |
 | Consumed by | `consumeAutosave(service)`                     |
-| Owner       | `autosave` (bundled)                           |
+| Owner       | `autosave`                                     |
 
-**No package consumes this today.** It is an extension point for items that must not be written behind the user's back — a scratch buffer, a remote file mid-transfer, a generated view that happens to be backed by a real path.
+It is an extension point for items that must not be written behind the user's back — a scratch buffer, a remote file mid-transfer, a generated view that happens to be backed by a real path.
 
 ## Registration
 
