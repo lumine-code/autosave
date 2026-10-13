@@ -12,6 +12,10 @@ Fork of [pulsar-edit/pulsar](https://github.com/pulsar-edit/pulsar) (`packages/a
 - **Opt-in**: disabled by default and enabled through the `autosave.enabled` setting.
 - **Exclusion hook**: lets other packages exclude items from autosaving through the provided service.
 
+![A modified file before moving focus.](.github/demo.png)
+
+![The change saved automatically after switching editors.](.github/demo-2.png)
+
 ## Installation
 
 To install `autosave` search for it in the Install pane of the Lumine settings, or run the command `lumine --install lumine-code/autosave`.

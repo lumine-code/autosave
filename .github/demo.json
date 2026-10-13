@@ -1,0 +1,23 @@
+{
+  "title": "autosave",
+  "description": "Save file changes automatically when focus moves to another editor.",
+  "recordedOn": "2026-10-13",
+  "sourceRevision": "1362e5b3b205251b0f83e34146cbe89f198935e6",
+  "mode": "normal",
+  "fontSettings": "default",
+  "themeSourceRevision": "6564a9e21899b5541e9c8f8006f9be6d6d72e6ad",
+  "images": [
+    {
+      "file": "demo.png",
+      "label": "A modified file before moving focus.",
+      "width": 1100,
+      "height": 340
+    },
+    {
+      "file": "demo-2.png",
+      "label": "The change saved automatically after switching editors.",
+      "width": 1100,
+      "height": 340
+    }
+  ]
+}
