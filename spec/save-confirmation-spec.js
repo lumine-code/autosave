@@ -65,7 +65,7 @@ describe("autosave with buffer save confirmation", () => {
     operations.push(saving);
     const notification = await next;
     expect(notification.getOptions().buttons.map((button) => button.text)).toEqual([
-      "Yes, always",
+      "Yes, remember",
       "Yes",
       "No",
     ]);
@@ -113,10 +113,10 @@ describe("autosave with buffer save confirmation", () => {
     expect(added).not.toHaveBeenCalled();
   });
 
-  it("allows later blur saves after Yes, always while still requiring global opt-in", async () => {
+  it("allows later blur saves after Yes, remember while still requiring global opt-in", async () => {
     editor.setSaveConfirmation(confirmation);
     editor.setText(changed);
-    await chooseManualSave("Yes, always");
+    await chooseManualSave("Yes, remember");
     editor.setSaveConfirmation({ ...confirmation });
     expect(editor.canSaveAutomatically()).toBe(true);
     expect(editor.getSaveConfirmation()).toEqual(confirmation);
@@ -174,7 +174,7 @@ describe("autosave with buffer save confirmation", () => {
     expect(fs.readFileSync(filePath, "utf8")).toBe(original);
     expect(added).not.toHaveBeenCalled();
 
-    await chooseManualSave("Yes, always", copy);
+    await chooseManualSave("Yes, remember", copy);
     editor.setSaveConfirmation({ ...confirmation });
     expect(editor.canSaveAutomatically()).toBe(true);
     expect(copy.canSaveAutomatically()).toBe(true);
