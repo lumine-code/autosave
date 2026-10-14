@@ -8,7 +8,8 @@ module.exports = {
     const { lumine, state, fixture, open } = context;
     state.editor = await open("autosave/processing.txt");
     await lumine.project.setPaths([fixture("autosave")]);
-    lumine.config.set("autosave.enabled", true);
+    // Hold the before frame even if another desktop window takes focus.
+    lumine.config.set("autosave.enabled", false);
     lumine.views.getView(state.editor).blur();
     lumine.views.getView(state.editor).focus();
     state.editor.setText("window = 7\nnormalize = true\n");
@@ -33,6 +34,8 @@ module.exports = {
       async run(context) {
         const { lumine, state, fixture } = context;
         {
+          lumine.config.set("autosave.enabled", true);
+          state.editor.getElement().focus();
           await lumine.workspace.open(fixture("autosave/notes.txt"));
           await new Promise((r) => setTimeout(r, 500));
           await lumine.workspace.open(state.editor);
