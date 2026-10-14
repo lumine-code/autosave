@@ -9,6 +9,7 @@ Fork of [pulsar-edit/pulsar](https://github.com/pulsar-edit/pulsar) (`packages/a
 - **Save on blur**: saves an editor when it loses focus.
 - **Save on close**: saves an item when its pane is closed or the window is closed.
 - **Conflict aware**: skips saving files that are in conflict when prompting is enabled.
+- **Protected buffers**: skips flagged buffers until "Yes, always" grants save permission for their session.
 - **Opt-in**: disabled by default and enabled through the `autosave.enabled` setting.
 - **Exclusion hook**: lets other packages exclude items from autosaving through the provided service.
 
