@@ -1,23 +1,77 @@
 {
   "title": "autosave",
-  "description": "Save file changes automatically when focus moves to another editor.",
-  "recordedOn": "2026-10-13",
-  "sourceRevision": "1362e5b3b205251b0f83e34146cbe89f198935e6",
+  "description": "A modified file before moving focus.",
+  "recordedOn": "2026-10-14",
+  "sourceRevision": "06cfbb79169aafe652e9056a0ddb94f95caef3b5",
+  "themeSourceRevision": "7fbd047a87ecf1367c896b19ff270cdc28d319f7",
   "mode": "normal",
   "fontSettings": "default",
-  "themeSourceRevision": "6564a9e21899b5541e9c8f8006f9be6d6d72e6ad",
+  "scenario": "demo.js",
+  "recipeHash": "5f9782494b3cca5ad273cb0cc42b1ecf892998a3be52a1ad2f259a871300357e",
+  "environment": {
+    "platform": "win32",
+    "arch": "x64",
+    "electron": "44.7.0",
+    "chrome": "152.0.7977.130",
+    "devicePixelRatio": 1,
+    "locale": "en-GB",
+    "fontFamily": "Fira Code, Menlo, DejaVu Sans Mono, Consolas, monospace",
+    "fontSize": 14,
+    "themes": ["one-day-syntax", "one-day-ui"]
+  },
+  "viewport": { "width": 1100, "height": 340 },
+  "cornerRadius": 10,
+  "sources": {
+    "editor": {
+      "revision": "d0b1751fffac65f10a405545e5f01cf7ad05c0bb",
+      "dirty": true,
+      "workingTreeHash": "9e1925be2839d18f5d0ab44707b99041e25a1ae20ebbfbfd58e9a92724c61a7a"
+    },
+    "package": {
+      "revision": "06cfbb79169aafe652e9056a0ddb94f95caef3b5",
+      "dirty": false,
+      "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "autosave": {
+      "revision": "06cfbb79169aafe652e9056a0ddb94f95caef3b5",
+      "dirty": false,
+      "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "language-javascript": {
+      "revision": "ae2e6968e3a349fb4d09ce53e339a0f8cce903aa",
+      "dirty": false,
+      "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    },
+    "one-theme": {
+      "revision": "7fbd047a87ecf1367c896b19ff270cdc28d319f7",
+      "dirty": false,
+      "workingTreeHash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+    }
+  },
+  "fixtures": [
+    {
+      "file": "autosave/notes.txt",
+      "sha256": "27f42b832d1dbf4d1d77a1055330d16109d09adf9fddf1652e7439a047d7dbba"
+    },
+    {
+      "file": "autosave/processing.txt",
+      "sha256": "a436882a2d49ceefb2f0a21944a60f094583766b258fa6161e75613609c50cbe"
+    }
+  ],
   "images": [
     {
       "file": "demo.png",
       "label": "A modified file before moving focus.",
       "width": 1100,
-      "height": 340
+      "height": 340,
+      "sha256": "702860e02c55ab11e0e3d17a2ba9bf09b63dda00e1e2b7302ac1a77114ae1312"
     },
     {
       "file": "demo-2.png",
       "label": "The change saved automatically after switching editors.",
       "width": 1100,
-      "height": 340
+      "height": 340,
+      "sha256": "bcdf0dd73efd27c521fcfee96ab72401296ea7d09ee3b147a83194b8bdbb5872"
     }
   ]
 }
