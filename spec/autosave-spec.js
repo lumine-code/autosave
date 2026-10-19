@@ -259,6 +259,28 @@ describe("Autosave", () => {
   // for is gone. Every orderly unload deactivates — a reload as much as a close
   // — so deactivation is what removes it.
   describe("when the window unloads", () => {
+    it("does not autosave on blur after window unload has been confirmed", () => {
+      lumine.config.set("autosave.enabled", true);
+      initialActiveItem.setText("keep the unsaved session contents");
+      spyOn(lumine.window, "isUnloading").and.returnValue(true);
+
+      window.dispatchEvent(new FocusEvent("blur"));
+
+      expect(initialActiveItem.save).not.toHaveBeenCalled();
+      expect(initialActiveItem.getFileState()).toBe("modified");
+    });
+
+    it("does not autosave during deactivation after window unload has been confirmed", async () => {
+      lumine.config.set("autosave.enabled", true);
+      initialActiveItem.setText("keep the unsaved session contents");
+      spyOn(lumine.window, "isUnloading").and.returnValue(true);
+
+      await lumine.packages.deactivatePackage("autosave");
+
+      expect(initialActiveItem.save).not.toHaveBeenCalled();
+      expect(initialActiveItem.getFileState()).toBe("modified");
+    });
+
     it("stops autosaving on blur once it has deactivated", async () => {
       const autosave = (await lumine.packages.activatePackage("autosave")).mainModule;
       spyOn(autosave, "autosaveAllPaneItems");
@@ -276,6 +298,16 @@ describe("Autosave", () => {
   });
 
   describe("when the package is deactivated", () => {
+    it("still saves modified items when the window is staying open", async () => {
+      lumine.config.set("autosave.enabled", true);
+      initialActiveItem.setText("save when the package is disabled");
+      spyOn(lumine.window, "isUnloading").and.returnValue(false);
+
+      await lumine.packages.deactivatePackage("autosave");
+
+      expect(initialActiveItem.save).toHaveBeenCalledTimes(1);
+    });
+
     it("saves all items and waits for saves to complete", async () => {
       lumine.config.set("autosave.enabled", true);
 
