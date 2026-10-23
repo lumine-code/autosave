@@ -127,7 +127,12 @@ return sort(Array.apply(this, arguments));
     // so the editor element is the natural dispatch target — the overlay
     // element only attaches once the component updates, which a hidden
     // window defers indefinitely.
+    const confirm = spyOn(autocompleteManager, "confirm").and.callThrough();
     lumine.commands.dispatch(editorView, "autocomplete:confirm");
+    expect(confirm).toHaveBeenCalledTimes(1);
+    // Resolving suggestion details or preparing a snippet can defer insertion;
+    // command dispatch itself does not await the completion operation.
+    await confirm.calls.mostRecent()?.returnValue;
     expect(editor.getBuffer().getLastLine()).toEqual("function");
   }, 60000);
 });
