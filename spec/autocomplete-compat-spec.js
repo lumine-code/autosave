@@ -1,3 +1,6 @@
+const typeText = (editor, text) =>
+  editor.dispatchTextInput({ kind: "insert", text }, () => editor.insertText(text));
+
 const fs = require("fs");
 const os = require("os");
 const path = require("path");
@@ -103,7 +106,7 @@ return sort(Array.apply(this, arguments));
     const firstEventPromise = createSuggestionsPromise();
     editor.moveToBottom();
     editor.moveToBeginningOfLine();
-    editor.insertText("f");
+    typeText(editor, "f");
     await firstEventPromise;
     await conditionPromise(
       () => autocompleteManager.suggestionList.isActive(),
@@ -113,7 +116,7 @@ return sort(Array.apply(this, arguments));
     const secondEventPromise = createSuggestionsPromise();
     editor.save();
     expect(autocompleteManager.suggestionList.isActive()).toBe(true);
-    editor.insertText("u");
+    typeText(editor, "u");
     await secondEventPromise;
     await conditionPromise(
       () => autocompleteManager.suggestionList.isActive(),
